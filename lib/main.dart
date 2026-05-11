@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
           themeMode: ThemeMode.light,
           debugShowCheckedModeBanner: false,
           initialRoute: AppRoutes.initial,
-          routes: AppRoutes.routes,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
         );
       },
     );

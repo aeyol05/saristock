@@ -29,9 +29,8 @@ class _DashboardKpiGridWidgetState extends State<DashboardKpiGridWidget>
       'value': widget.totalProducts,
       'suffix': ' items',
       'icon': Icons.inventory_2_outlined,
-      'color': AppTheme.primary,
-      'bgColor': const Color(0xFFE8F5F1),
-      'change': 'Live data mula Supabase',
+      'gradient': AppTheme.cardTeal,
+      'change': 'Live data mula Store',
       'changePositive': true,
     },
     {
@@ -39,29 +38,26 @@ class _DashboardKpiGridWidgetState extends State<DashboardKpiGridWidget>
       'value': widget.lowStockCount,
       'suffix': ' produkto',
       'icon': Icons.warning_amber_rounded,
-      'color': AppTheme.lowStock,
-      'bgColor': const Color(0xFFFFF3E0),
-      'change': 'Kailangan i-restock',
+      'gradient': AppTheme.cardAmber,
+      'change': 'Stock ay sapat',
       'changePositive': false,
     },
     {
       'label': 'Wala na',
-      'value': 0, // Placeholder
+      'value': 0,
       'suffix': ' produkto',
       'icon': Icons.remove_shopping_cart_outlined,
-      'color': AppTheme.error,
-      'bgColor': const Color(0xFFFFEBEE),
-      'change': '₱0 na nawalang benta',
+      'gradient': AppTheme.cardRose,
+      'change': 'Walang out of stock',
       'changePositive': false,
     },
     {
       'label': 'Halaga ng Stock',
-      'value': 0, // Placeholder
+      'value': 0,
       'suffix': '',
       'prefix': '₱',
       'icon': Icons.account_balance_wallet_outlined,
-      'color': const Color(0xFF1565C0),
-      'bgColor': const Color(0xFFE3F2FD),
+      'gradient': AppTheme.cardViolet,
       'change': 'Halaga ng iyong tindahan',
       'changePositive': true,
     },
@@ -144,92 +140,105 @@ class _KpiCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(14),
+        gradient: kpi['gradient'] as Gradient,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(13),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: (kpi['gradient'] as LinearGradient).colors.first.withAlpha(50),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: kpi['bgColor'] as Color,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  kpi['icon'] as IconData,
-                  color: kpi['color'] as Color,
-                  size: 18,
-                ),
+          // Background Decorative Circle
+          Positioned(
+            right: -20,
+            bottom: -20,
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(30),
+                shape: BoxShape.circle,
               ),
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: kpi['changePositive'] as bool
-                      ? AppTheme.success
-                      : AppTheme.error,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ],
+            ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AnimatedBuilder(
-                animation: animation,
-                builder: (context, child) {
-                  final targetValue = kpi['value'] as int;
-                  final displayValue = (targetValue * animation.value).round();
-                  final isLarge = targetValue > 9999;
-                  return Text(
-                    '${kpi['prefix'] ?? ''}${isLarge ? _formatLarge(displayValue) : displayValue}${kpi['suffix']}',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: isLarge ? 20 : 24,
-                      fontWeight: FontWeight.w800,
-                      color: kpi['color'] as Color,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                      height: 1.1,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(40),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  );
-                },
+                    child: Icon(
+                      kpi['icon'] as IconData,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF4CAF50),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 2),
-              Text(
-                kpi['label'] as String,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.onSurfaceVariant,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 3),
-              Text(
-                kpi['change'] as String,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w400,
-                  color: kpi['changePositive'] as bool
-                      ? AppTheme.success
-                      : AppTheme.lowStock,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AnimatedBuilder(
+                    animation: animation,
+                    builder: (context, child) {
+                      final targetValue = kpi['value'] as int;
+                      final displayValue = (targetValue * animation.value).round();
+                      final isLarge = targetValue > 9999;
+                      return Text(
+                        '${kpi['prefix'] ?? ''}${isLarge ? _formatLarge(displayValue) : displayValue}${kpi['suffix']}',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: isLarge ? 20 : 26,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                          height: 1.1,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    kpi['label'] as String,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withAlpha(220),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    kpi['change'] as String,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white.withAlpha(180),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ],
           ),

@@ -46,6 +46,9 @@ class DashboardLowStockWidget extends StatelessWidget {
     bool isOutOfStock,
     int index,
   ) {
+    final statusColor = isOutOfStock ? AppTheme.cardRose.colors.first : AppTheme.cardAmber.colors.first;
+    final stock = item['stock'] ?? item['currentStock'] ?? 0;
+    
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: Duration(milliseconds: 300 + index * 60),
@@ -54,58 +57,50 @@ class DashboardLowStockWidget extends StatelessWidget {
         return Opacity(
           opacity: value,
           child: Transform.translate(
-            offset: Offset(20 * (1 - value), 0),
+            offset: Offset(10 * (1 - value), 0),
             child: child,
           ),
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
+        margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
-          color: isOutOfStock
-              ? AppTheme.errorContainer
-              : AppTheme.lowStockContainer,
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isOutOfStock
-                ? AppTheme.error.withAlpha(77)
-                : AppTheme.lowStock.withAlpha(77),
+            color: statusColor.withAlpha(20),
+            width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(5),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: () {},
-            borderRadius: BorderRadius.circular(12),
-            splashColor: AppTheme.primary.withAlpha(20),
+            borderRadius: BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
                   Container(
-                    width: 46,
-                    height: 46,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(8),
+                      color: statusColor.withAlpha(15),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: item['imageUrl'] != null
-                          ? Image.network(
-                              item['imageUrl'] as String,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Icon(
-                                Icons.inventory_2_outlined,
-                                color: AppTheme.outline,
-                                size: 22,
-                              ),
-                            )
-                          : Icon(
-                              Icons.inventory_2_outlined,
-                              color: AppTheme.outline,
-                              size: 22,
-                            ),
+                    child: Center(
+                      child: Icon(
+                        isOutOfStock ? Icons.remove_shopping_cart_outlined : Icons.warning_amber_rounded,
+                        color: statusColor,
+                        size: 24,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -116,8 +111,8 @@ class DashboardLowStockWidget extends StatelessWidget {
                         Text(
                           item['name'] as String,
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
                             color: AppTheme.onSurface,
                           ),
                           maxLines: 1,
@@ -125,10 +120,11 @@ class DashboardLowStockWidget extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${item['category']} • ${item['supplier']}',
+                          '${item['category'] ?? 'General'} • Restock Level: ${item['reorderLevel'] ?? 5}',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 11,
-                            color: AppTheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                            color: AppTheme.onSurfaceVariant.withAlpha(150),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -140,45 +136,28 @@ class DashboardLowStockWidget extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      StatusBadgeWidget(
-                        status: isOutOfStock
-                            ? StockStatus.outOfStock
-                            : StockStatus.lowStock,
-                        compact: true,
+                      Text(
+                        '$stock units',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: statusColor,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '${item['currentStock']}',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: isOutOfStock
-                                    ? AppTheme.error
-                                    : AppTheme.lowStock,
-                                fontFeatures: const [
-                                  FontFeature.tabularFigures(),
-                                ],
-                              ),
-                            ),
-                            TextSpan(
-                              text: '/${item['reorderLevel']}',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                color: AppTheme.outline,
-                              ),
-                            ),
-                          ],
+                      Text(
+                        isOutOfStock ? 'Wala na' : 'Mababa',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: statusColor.withAlpha(180),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: AppTheme.outline,
+                    color: AppTheme.onSurfaceVariant.withAlpha(100),
                     size: 18,
                   ),
                 ],

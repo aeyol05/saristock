@@ -181,7 +181,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
         // Camera or web fallback
         Positioned.fill(
           child: kIsWeb
-              ? ScannerManualEntryWidget(onBarcodeSubmitted: _onBarcodeDetected)
+              ? Container(
+                  color: AppTheme.background,
+                  child: ScannerManualEntryWidget(onBarcodeSubmitted: _onBarcodeDetected),
+                )
               : ScannerCameraWidget(
                   onBarcodeDetected: _onBarcodeDetected,
                   torchEnabled: _torchEnabled,
@@ -196,37 +199,44 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
         // Searching indicator
         if (_isSearching)
           Positioned(
-            top: 80,
+            top: 100,
             left: 0,
             right: 0,
             child: Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
+                  horizontal: 20,
+                  vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withAlpha(179),
-                  borderRadius: BorderRadius.circular(24),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(
-                      width: 16,
-                      height: 16,
+                      width: 18,
+                      height: 18,
                       child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
+                        strokeWidth: 3,
+                        color: AppTheme.primary,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Text(
-                      'Hinahanap sa inventory...',
+                      'Kinikilala ang produkto...',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        color: AppTheme.onSurface,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -343,10 +353,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
 
   Widget _buildTopBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.black.withAlpha(179), Colors.transparent],
+          colors: [Colors.black.withAlpha(150), Colors.transparent],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -354,27 +364,26 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pushNamedAndRemoveUntil(
+            onTap: () => Navigator.pushReplacementNamed(
               context,
               AppRoutes.inventoryDashboardScreen,
-              (route) => false,
             ),
             child: Container(
-              width: 38,
-              height: 38,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
-                color: Colors.black.withAlpha(102),
+                color: Colors.white.withAlpha(40),
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white24, width: 1),
+                border: Border.all(color: Colors.white.withAlpha(60), width: 1.5),
               ),
               child: const Icon(
                 Icons.arrow_back_rounded,
                 color: Colors.white,
-                size: 20,
+                size: 22,
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,9 +391,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                 Text(
                   'Barcode Scanner',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
                     color: Colors.white,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 Text(
@@ -393,7 +403,8 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                       : 'Ituro sa barcode ng produkto',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 11,
-                    color: Colors.white70,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white.withAlpha(180),
                   ),
                 ),
               ],
@@ -403,21 +414,24 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
             GestureDetector(
               onTap: () => setState(() => _torchEnabled = !_torchEnabled),
               child: Container(
-                width: 38,
-                height: 38,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
                   color: _torchEnabled
-                      ? AppTheme.secondary.withAlpha(230)
-                      : Colors.black.withAlpha(102),
+                      ? AppTheme.secondary
+                      : Colors.white.withAlpha(40),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white24, width: 1),
+                  border: Border.all(
+                    color: _torchEnabled ? Colors.white : Colors.white.withAlpha(60),
+                    width: 1.5,
+                  ),
                 ),
                 child: Icon(
                   _torchEnabled
                       ? Icons.flashlight_on_rounded
                       : Icons.flashlight_off_rounded,
                   color: Colors.white,
-                  size: 18,
+                  size: 20,
                 ),
               ),
             ),

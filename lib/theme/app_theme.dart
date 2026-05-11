@@ -6,19 +6,50 @@ class AppTheme {
   static const Color primary = Color(0xFF1B6B5A);
   static const Color primaryDark = Color(0xFF134E41);
   static const Color primaryLight = Color(0xFF2E8B72);
-  static const Color primaryContainer = Color(0xFFB2DFDB);
   static const Color secondary = Color(0xFFE8A838);
-  static const Color secondaryContainer = Color(0xFFFFF3CD);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceVariant = Color(0xFFF4FAF8);
-  static const Color background = Color(0xFFF0F7F4);
-  static const Color onPrimary = Color(0xFFFFFFFF);
-  static const Color onSurface = Color(0xFF1C2B27);
-  static const Color onSurfaceVariant = Color(0xFF4A6560);
-  static const Color outline = Color(0xFF78909C);
-  static const Color outlineVariant = Color(0xFFCFE0DC);
+  static const Color background = Color(0xFFF8FAF9);
+  
+  // Vibrant Card Gradients
+  static const LinearGradient headerGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF155E4E), Color(0xFF2E8B72)],
+  );
+
+  static const LinearGradient cardTeal = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF2E8B72), Color(0xFF1B6B5A)],
+  );
+
+  static const LinearGradient cardAmber = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFFA000), Color(0xFFE8A838)],
+  );
+
+  static const LinearGradient cardRose = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFF5252), Color(0xFFD32F2F)],
+  );
+
+  static const LinearGradient cardViolet = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF7C4DFF), Color(0xFF6200EA)],
+  );
 
   // Semantic Colors
+  static const Color onPrimary = Color(0xFFFFFFFF);
+  static const Color primaryContainer = Color(0xFFE0F2F1);
+  static const Color secondaryContainer = Color(0xFFFFF3E0);
+  static const Color onSurface = Color(0xFF1C1C1C);
+  static const Color onSurfaceVariant = Color(0xFF424242);
+  static const Color surfaceVariant = Color(0xFFF1F5F4);
+  static const Color outline = Color(0xFFBDBDBD);
+  static const Color outlineVariant = Color(0xFFE0E0E0);
   static const Color success = Color(0xFF2E7D32);
   static const Color successContainer = Color(0xFFE8F5E9);
   static const Color warning = Color(0xFFF57F17);

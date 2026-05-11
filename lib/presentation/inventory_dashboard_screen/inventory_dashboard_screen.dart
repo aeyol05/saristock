@@ -173,36 +173,54 @@ class _InventoryDashboardScreenState extends State<InventoryDashboardScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
-                      _buildFilterChips(),
+                      _animateIn(0, _buildFilterChips()),
                       const SizedBox(height: 16),
-                      DashboardKpiGridWidget(
+                      _animateIn(1, DashboardKpiGridWidget(
                         totalProducts: _totalProducts,
                         lowStockCount: _lowStockCount,
-                      ),
-                      const SizedBox(height: 20),
-                      _buildSectionHeader(
+                      )),
+                      const SizedBox(height: 24),
+                      _animateIn(2, _buildSectionHeader(
                         '⚠️ Mababa na ang Stock',
                         'Tingnan Lahat',
-                      ),
-                      const SizedBox(height: 10),
-                      DashboardLowStockWidget(
+                      )),
+                      const SizedBox(height: 12),
+                      _animateIn(3, DashboardLowStockWidget(
                         products: _lowStockProducts,
-                      ),
-                      const SizedBox(height: 20),
-                      _buildSectionHeader('Stock sa Kategorya', null),
-                      const SizedBox(height: 10),
-                      DashboardChartWidget(categoryData: _categoryData),
-                      const SizedBox(height: 20),
-                      _buildSectionHeader('Mga Transaksyon Ngayon', 'Lahat'),
-                      const SizedBox(height: 10),
-                      const DashboardRecentTransactionsWidget(
+                      )),
+                      const SizedBox(height: 24),
+                      _animateIn(4, _buildSectionHeader('Stock sa Kategorya', null)),
+                      const SizedBox(height: 12),
+                      _animateIn(5, DashboardChartWidget(categoryData: _categoryData)),
+                      const SizedBox(height: 24),
+                      _animateIn(6, _buildSectionHeader('Mga Transaksyon Ngayon', 'Lahat')),
+                      const SizedBox(height: 12),
+                      _animateIn(7, const DashboardRecentTransactionsWidget(
                         transactions: [],
-                      ),
+                      )),
                     ]),
                   ),
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _animateIn(int index, Widget child) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: Duration(milliseconds: 400 + (index * 100)),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: child,
     );
   }
 
@@ -302,27 +320,43 @@ class _InventoryDashboardScreenState extends State<InventoryDashboardScreen> {
     return SliverAppBar(
       floating: true,
       snap: true,
-      backgroundColor: AppTheme.surface,
-      scrolledUnderElevation: 2,
-      shadowColor: Colors.black.withAlpha(20),
+      expandedHeight: 80,
+      backgroundColor: Colors.transparent,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: AppTheme.headerGradient,
+          ),
+        ),
+      ),
+      scrolledUnderElevation: 4,
+      shadowColor: AppTheme.primary.withAlpha(50),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'SariStock',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.w800,
-              color: AppTheme.primary,
+              color: Colors.white,
+              letterSpacing: -0.5,
             ),
           ),
-          Text(
-            '$_storeName • ${_formatDate(DateTime.now())}',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
-              color: AppTheme.outline,
-            ),
+          const SizedBox(height: 2),
+          Row(
+            children: [
+              Icon(Icons.storefront_rounded, size: 12, color: Colors.white.withAlpha(180)),
+              const SizedBox(width: 4),
+              Text(
+                '$_storeName • ${_formatDate(DateTime.now())}',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withAlpha(180),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -331,49 +365,47 @@ class _InventoryDashboardScreenState extends State<InventoryDashboardScreen> {
           alignment: Alignment.center,
           children: [
             IconButton(
-              icon: const Icon(
-                Icons.notifications_outlined,
-                color: AppTheme.onSurface,
+              icon: Icon(
+                Icons.notifications_none_rounded,
+                color: Colors.white.withAlpha(220),
               ),
               onPressed: () {},
             ),
             Positioned(
-              top: 8,
-              right: 8,
+              top: 10,
+              right: 10,
               child: Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppTheme.error,
+                width: 9,
+                height: 9,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFF5252),
                   shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFF155E4E), width: 1.5),
                 ),
               ),
             ),
           ],
         ),
         Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: GestureDetector(
-            onTap: () {},
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppTheme.primaryContainer,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppTheme.primary.withAlpha(77),
-                  width: 2,
-                ),
+          padding: const EdgeInsets.only(right: 16, left: 4),
+          child: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(40),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withAlpha(60),
+                width: 1.5,
               ),
-              child: Center(
-                child: Text(
-                  'AN',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primary,
-                  ),
+            ),
+            child: Center(
+              child: Text(
+                'AN',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
                 ),
               ),
             ),

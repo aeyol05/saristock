@@ -182,40 +182,67 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: Text(
-          'Pamamahala ng Produkto',
-          style: GoogleFonts.plusJakartaSans(
-            fontWeight: FontWeight.w800,
-            color: AppTheme.primary,
-          ),
-        ),
-        backgroundColor: AppTheme.surface,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: _fetchProducts,
-            icon: const Icon(Icons.refresh, color: AppTheme.primary),
+      body: CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            sliver: _isLoading
+                ? const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+                : _products.isEmpty
+                    ? SliverFillRemaining(child: _buildEmptyState())
+                    : _buildProductList(),
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _products.isEmpty
-              ? _buildEmptyState()
-              : _buildProductList(),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddProductDialog,
         backgroundColor: AppTheme.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
+        label: Text(
+          'Dagdag Produkto',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.white),
+        ),
       ),
       bottomNavigationBar: AppNavigation(
-        currentIndex: 2, // Assuming index 2 for products
+        currentIndex: 2,
         onDestinationSelected: (index) {
-           if (index == 0) Navigator.pushNamed(context, AppRoutes.inventoryDashboardScreen);
-           if (index == 1) Navigator.pushNamed(context, AppRoutes.barcodeScannerScreen);
+          if (index == 0) Navigator.pushReplacementNamed(context, AppRoutes.inventoryDashboardScreen);
+          if (index == 1) Navigator.pushReplacementNamed(context, AppRoutes.barcodeScannerScreen);
+          if (index == 3) Navigator.pushReplacementNamed(context, AppRoutes.profileScreen);
         },
       ),
+    );
+  }
+
+  Widget _buildSliverAppBar() {
+    return SliverAppBar(
+      floating: true,
+      snap: true,
+      expandedHeight: 80,
+      backgroundColor: Colors.transparent,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: AppTheme.headerGradient,
+          ),
+        ),
+      ),
+      title: Text(
+        'Pamamahala ng Produkto',
+        style: GoogleFonts.plusJakartaSans(
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+          color: Colors.white,
+        ),
+      ),
+      actions: [
+        IconButton(
+          onPressed: _fetchProducts,
+          icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+        ),
+        const SizedBox(width: 8),
+      ],
     );
   }
 
@@ -224,20 +251,31 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inventory_2_outlined, size: 64, color: AppTheme.outline),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppTheme.primary.withAlpha(20),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.inventory_2_outlined, size: 64, color: AppTheme.primary),
+          ),
+          const SizedBox(height: 20),
           Text(
             'Wala pang mga produkto.',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: _showAddProductDialog,
-            child: const Text('Magdagdag ng Produkto'),
+          Text(
+            'Magdagdag ng produkto para masimulan\nang iyong inventory.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14,
+              color: AppTheme.onSurfaceVariant.withAlpha(150),
+            ),
           ),
         ],
       ),
@@ -245,55 +283,131 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
   }
 
   Widget _buildProductList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _products.length,
-      itemBuilder: (context, index) {
-        final product = _products[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: ListTile(
-            title: Text(
-              product['name'] ?? 'Walang Pangalan',
-              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text('${product['category'] ?? 'General'} • ₱${product['price']}'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Stock: ${product['stock']}',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: (product['stock'] ?? 0) < 5 ? AppTheme.error : AppTheme.onSurface,
-                        fontWeight: FontWeight.w600,
-                      ),
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final product = _products[index];
+          final isLowStock = (product['stock'] ?? 0) < 5;
+          
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(5),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Material(
+                  color: Colors.transparent,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    onTap: () => _showProductDialog(product: product),
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            product['name'] ?? 'Walang Pangalan',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isLowStock ? AppTheme.cardRose.colors.first.withAlpha(20) : AppTheme.cardTeal.colors.first.withAlpha(20),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            isLowStock ? 'MABABA' : 'IN STOCK',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: isLowStock ? AppTheme.cardRose.colors.first : AppTheme.cardTeal.colors.first,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '₱${product['price']}',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        color: AppTheme.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(Icons.category_outlined, size: 14, color: AppTheme.onSurfaceVariant.withAlpha(150)),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${product['category'] ?? 'General'}',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.onSurfaceVariant.withAlpha(180),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  '₱${product['price']}',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.primaryLight,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'kada unit',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11,
+                                    color: AppTheme.onSurfaceVariant.withAlpha(120),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppTheme.background,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '${product['stock']} units left',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: isLowStock ? AppTheme.cardRose.colors.first : AppTheme.onSurface,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: AppTheme.error, size: 20),
-                  onPressed: () => _deleteProduct(product['id']),
-                ),
-              ],
+              ),
             ),
-            onTap: () => _showProductDialog(product: product),
-          ),
-        );
-      },
+          );
+        },
+        childCount: _products.length,
+      ),
     );
   }
 }
