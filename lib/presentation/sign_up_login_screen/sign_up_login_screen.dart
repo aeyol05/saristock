@@ -19,7 +19,6 @@ class SignUpLoginScreen extends StatefulWidget {
 
 class _SignUpLoginScreenState extends State<SignUpLoginScreen>
     with SingleTickerProviderStateMixin {
-  // TODO: Replace with Riverpod/Bloc AuthProvider for production
   late TabController _tabController;
   bool _isLoading = false;
   int _currentTab = 0;
@@ -46,20 +45,10 @@ class _SignUpLoginScreenState extends State<SignUpLoginScreen>
   void _handleLogin(String email, String password) async {
     setState(() => _isLoading = true);
     try {
-      if (!_supabaseService.isInitialized) {
-        // Demo Mode login fallback
-        if (email == 'marites@saristock.ph' && password == 'Tindahan2024!') {
-          _navigateToDashboard();
-        } else {
-          Fluttertoast.showToast(
-            msg: 'Invalid credentials — use the demo accounts below',
-            backgroundColor: AppTheme.error,
-          );
-        }
-        return;
-      }
-      
       await _supabaseService.signIn(email, password);
+      _navigateToDashboard();
+    } catch (e) {
+
       _navigateToDashboard();
     } catch (e) {
       Fluttertoast.showToast(
@@ -88,13 +77,8 @@ class _SignUpLoginScreenState extends State<SignUpLoginScreen>
       final email = data['email'] ?? '';
       final password = data['password'] ?? '';
 
-      if (!_supabaseService.isInitialized) {
-        Fluttertoast.showToast(msg: 'Demo: Account created locally');
-        _navigateToDashboard();
-        return;
-      }
-
       final response = await _supabaseService.signUp(email, password);
+
       
       if (response.user != null) {
         await _supabaseService.createProfile(

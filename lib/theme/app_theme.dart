@@ -36,9 +36,9 @@ class AppTheme {
       primaryContainer: primaryContainer,
       onPrimaryContainer: primaryDark,
       secondary: secondary,
-      onSecondary: Color(0xFF1C1C1C),
+      onSecondary: const Color(0xFF1C1C1C),
       secondaryContainer: secondaryContainer,
-      onSecondaryContainer: Color(0xFF4A3800),
+      onSecondaryContainer: const Color(0xFF4A3800),
       surface: surface,
       onSurface: onSurface,
       surfaceContainerHighest: surfaceVariant,
@@ -46,9 +46,9 @@ class AppTheme {
       outline: outline,
       outlineVariant: outlineVariant,
       error: error,
-      onError: Color(0xFFFFFFFF),
+      onError: const Color(0xFFFFFFFF),
       errorContainer: errorContainer,
-      onErrorContainer: Color(0xFF7F1010),
+      onErrorContainer: const Color(0xFF7F1010),
     ),
     scaffoldBackgroundColor: background,
     textTheme: GoogleFonts.plusJakartaSansTextTheme(
@@ -126,9 +126,9 @@ class AppTheme {
       indicatorColor: primaryContainer,
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return IconThemeData(color: primary, size: 24);
+          return const IconThemeData(color: primary, size: 24);
         }
-        return IconThemeData(color: outline, size: 24);
+        return const IconThemeData(color: outline, size: 24);
       }),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
@@ -158,23 +158,23 @@ class AppTheme {
       fillColor: surfaceVariant,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: outlineVariant),
+        borderSide: const BorderSide(color: outlineVariant),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: outlineVariant),
+        borderSide: const BorderSide(color: outlineVariant),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: primary, width: 2),
+        borderSide: const BorderSide(color: primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: error, width: 1.5),
+        borderSide: const BorderSide(color: error, width: 1.5),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: error, width: 2),
+        borderSide: const BorderSide(color: error, width: 2),
       ),
       labelStyle: GoogleFonts.plusJakartaSans(
         fontSize: 14,
@@ -226,11 +226,11 @@ class AppTheme {
         fontSize: 12,
         fontWeight: FontWeight.w500,
       ),
-      side: BorderSide(color: outlineVariant),
+      side: const BorderSide(color: outlineVariant),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     ),
-    dividerTheme: DividerThemeData(
+    dividerTheme: const DividerThemeData(
       color: outlineVariant,
       thickness: 1,
       space: 1,
@@ -239,7 +239,7 @@ class AppTheme {
 
   static ThemeData get darkTheme => ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.dark(
+    colorScheme: const ColorScheme.dark(
       primary: Color(0xFF4DB89E),
       onPrimary: Color(0xFF003329),
       primaryContainer: Color(0xFF00503E),
@@ -259,7 +259,7 @@ class AppTheme {
       errorContainer: Color(0xFF930000),
       onErrorContainer: Color(0xFFFFDAD6),
     ),
-    scaffoldBackgroundColor: Color(0xFF121C1A),
+    scaffoldBackgroundColor: const Color(0xFF121C1A),
     textTheme: GoogleFonts.plusJakartaSansTextTheme(
       const TextTheme(
         displayLarge: TextStyle(fontSize: 36, fontWeight: FontWeight.w700),
@@ -271,6 +271,6 @@ class AppTheme {
         labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
       ),
-    ).apply(bodyColor: Color(0xFFDCEDE8), displayColor: Color(0xFFDCEDE8)),
+    ).apply(bodyColor: const Color(0xFFDCEDE8), displayColor: const Color(0xFFDCEDE8)),
   );
 }

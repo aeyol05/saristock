@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../../core/services/supabase_service.dart';
 import '../../../theme/app_theme.dart';
 
 class AddProductBottomSheetWidget extends StatefulWidget {
@@ -13,7 +14,7 @@ class AddProductBottomSheetWidget extends StatefulWidget {
 
 class _AddProductBottomSheetWidgetState
     extends State<AddProductBottomSheetWidget> {
-  // TODO: Replace with real product creation API call
+  final SupabaseService _supabaseService = SupabaseService();
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _skuController = TextEditingController();
@@ -49,15 +50,30 @@ class _AddProductBottomSheetWidgetState
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      await Future.delayed(const Duration(milliseconds: 900));
-      setState(() => _isLoading = false);
-      if (mounted) {
-        Navigator.pop(context);
+      try {
+        await _supabaseService.addProduct({
+          'name': _nameController.text,
+          'barcode': _skuController.text,
+          'category': _selectedCategory,
+          'stock': int.tryParse(_stockController.text) ?? 0,
+          'price': double.tryParse(_priceController.text) ?? 0.0,
+        });
+
+        if (mounted) {
+          Navigator.pop(context, true); // Return true to signal success
+          Fluttertoast.showToast(
+            msg: '${_nameController.text} naidagdag na sa inventory!',
+            backgroundColor: AppTheme.success,
+            textColor: Colors.white,
+          );
+        }
+      } catch (e) {
         Fluttertoast.showToast(
-          msg: '${_nameController.text} naidagdag na sa inventory!',
-          backgroundColor: AppTheme.success,
-          textColor: Colors.white,
+          msg: 'Error: ${e.toString()}',
+          backgroundColor: AppTheme.error,
         );
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }

@@ -116,13 +116,17 @@ class _InventoryDashboardScreenState extends State<InventoryDashboardScreen> {
     }
   }
 
-  void _showAddProductSheet() {
-    showModalBottomSheet(
+  void _showAddProductSheet() async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const AddProductBottomSheetWidget(),
     );
+
+    if (result == true) {
+      _loadDashboard();
+    }
   }
 
   @override

@@ -86,24 +86,44 @@ class SupabaseService {
   Future<List<Map<String, dynamic>>> getProducts() async {
     if (!isInitialized) return [];
     
-    var query = client.from('products').select();
-    if (userId != null) {
-      query = query.eq('user_id', userId!);
+    try {
+      final currentUserId = userId;
+      debugPrint('Fetching products for User ID: $currentUserId');
+      
+      var query = client.from('products').select();
+      
+      // If we have a userId, we filter. If not, RLS will handle it anyway.
+      if (currentUserId != null) {
+        query = query.eq('user_id', currentUserId);
+      }
+      
+      final response = await query;
+      debugPrint('Fetched ${response.length} products from Supabase');
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint('Exception in getProducts: $e');
+      rethrow;
     }
-    
-    final response = await query;
-    return List<Map<String, dynamic>>.from(response);
   }
 
   Future<void> addProduct(Map<String, dynamic> product) async {
     if (!isInitialized) return;
     
-    final data = Map<String, dynamic>.from(product);
-    if (userId != null) {
-      data['user_id'] = userId;
+    try {
+      final data = Map<String, dynamic>.from(product);
+      final currentUserId = userId;
+      
+      if (currentUserId != null) {
+        data['user_id'] = currentUserId;
+      }
+      
+      debugPrint('Adding product for User ID: $currentUserId - Data: $data');
+      await client.from('products').insert(data);
+      debugPrint('Product added successfully to Supabase');
+    } catch (e) {
+      debugPrint('Exception in addProduct: $e');
+      rethrow;
     }
-    
-    await client.from('products').insert(data);
   }
 
   Future<void> updateProduct(int id, Map<String, dynamic> product) async {
