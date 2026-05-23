@@ -114,16 +114,13 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
 
   void _onNavSelected(int index) {
     if (index == _selectedNavIndex) return;
-
     setState(() => _selectedNavIndex = index);
     if (index == 0) {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.inventoryDashboardScreen,
-        (route) => false,
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.inventoryDashboardScreen);
     } else if (index == 2) {
-      Navigator.pushNamed(context, AppRoutes.productManagementScreen);
+      Navigator.pushReplacementNamed(context, AppRoutes.productManagementScreen);
+    } else if (index == 3) {
+      Navigator.pushReplacementNamed(context, AppRoutes.profileScreen);
     }
   }
 
@@ -196,27 +193,21 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
         // Top bar overlay
         Positioned(top: 0, left: 0, right: 0, child: _buildTopBar()),
 
-        // Searching indicator
+        // Viewfinder overlay
+        if (!kIsWeb && _scannedProduct == null)
+          Positioned.fill(child: _buildViewfinderOverlay()),
+
+        // Searching indicator — centered over viewfinder
         if (_isSearching)
-          Positioned(
-            top: 100,
-            left: 0,
-            right: 0,
+          Positioned.fill(
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(20),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
+                    BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 20, offset: const Offset(0, 10)),
                   ],
                 ),
                 child: Row(
@@ -225,19 +216,12 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                     const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        color: AppTheme.primary,
-                      ),
+                      child: CircularProgressIndicator(strokeWidth: 3, color: AppTheme.primary),
                     ),
                     const SizedBox(width: 12),
                     Text(
                       'Kinikilala ang produkto...',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        color: AppTheme.onSurface,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppTheme.onSurface, fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -351,6 +335,28 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
     );
   }
 
+  Widget _buildViewfinderOverlay() {
+    return CustomPaint(
+      painter: _ViewfinderPainter(),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 220),
+            Text(
+              'Ituro sa barcode ng produkto',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withAlpha(200),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTopBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -439,4 +445,64 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
       ),
     );
   }
+}
+
+class _ViewfinderPainter extends CustomPainter {
+  static const double _frameWidth = 260;
+  static const double _frameHeight = 160;
+  static const double _cornerLen = 28;
+  static const double _cornerRadius = 6;
+  static const double _strokeWidth = 3.5;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2 - 40;
+    final left = cx - _frameWidth / 2;
+    final top = cy - _frameHeight / 2;
+    final right = cx + _frameWidth / 2;
+    final bottom = cy + _frameHeight / 2;
+
+    // Dark overlay outside the frame
+    final overlayPaint = Paint()..color = Colors.black.withAlpha(140);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, top), overlayPaint);
+    canvas.drawRect(Rect.fromLTWH(0, bottom, size.width, size.height - bottom), overlayPaint);
+    canvas.drawRect(Rect.fromLTWH(0, top, left, _frameHeight), overlayPaint);
+    canvas.drawRect(Rect.fromLTWH(right, top, size.width - right, _frameHeight), overlayPaint);
+
+    // Corner brackets
+    final cornerPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final r = _cornerRadius;
+    // Top-left
+    canvas.drawLine(Offset(left + r, top), Offset(left + _cornerLen, top), cornerPaint);
+    canvas.drawLine(Offset(left, top + r), Offset(left, top + _cornerLen), cornerPaint);
+    canvas.drawArc(Rect.fromLTWH(left, top, r * 2, r * 2), 3.14159, 3.14159 / 2, false, cornerPaint);
+    // Top-right
+    canvas.drawLine(Offset(right - _cornerLen, top), Offset(right - r, top), cornerPaint);
+    canvas.drawLine(Offset(right, top + r), Offset(right, top + _cornerLen), cornerPaint);
+    canvas.drawArc(Rect.fromLTWH(right - r * 2, top, r * 2, r * 2), -3.14159 / 2, 3.14159 / 2, false, cornerPaint);
+    // Bottom-left
+    canvas.drawLine(Offset(left + r, bottom), Offset(left + _cornerLen, bottom), cornerPaint);
+    canvas.drawLine(Offset(left, bottom - _cornerLen), Offset(left, bottom - r), cornerPaint);
+    canvas.drawArc(Rect.fromLTWH(left, bottom - r * 2, r * 2, r * 2), 3.14159 / 2, 3.14159 / 2, false, cornerPaint);
+    // Bottom-right
+    canvas.drawLine(Offset(right - _cornerLen, bottom), Offset(right - r, bottom), cornerPaint);
+    canvas.drawLine(Offset(right, bottom - _cornerLen), Offset(right, bottom - r), cornerPaint);
+    canvas.drawArc(Rect.fromLTWH(right - r * 2, bottom - r * 2, r * 2, r * 2), 0, 3.14159 / 2, false, cornerPaint);
+
+    // Scan line inside frame
+    final linePaint = Paint()
+      ..color = AppTheme.primary.withAlpha(200)
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(Offset(left + 12, cy), Offset(right - 12, cy), linePaint);
+  }
+
+  @override
+  bool shouldRepaint(_ViewfinderPainter oldDelegate) => false;
 }

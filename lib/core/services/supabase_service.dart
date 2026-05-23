@@ -82,6 +82,22 @@ class SupabaseService {
     return await client.from('profiles').select().eq('id', userId!).maybeSingle();
   }
 
+  Future<void> updateProfile(String storeName, String ownerName) async {
+    if (!isInitialized || userId == null) return;
+    await client.from('profiles').upsert({
+      'id': userId!,
+      'store_name': storeName,
+      'owner_name': ownerName,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<int> getProductCount() async {
+    if (!isInitialized || userId == null) return 0;
+    final response = await client.from('products').select().eq('user_id', userId!);
+    return response.length;
+  }
+
   // Database methods
   Future<List<Map<String, dynamic>>> getProducts() async {
     if (!isInitialized) return [];

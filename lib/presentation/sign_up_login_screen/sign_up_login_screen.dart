@@ -196,8 +196,10 @@ class _SignUpLoginScreenState extends State<SignUpLoginScreen>
               dividerColor: Colors.transparent,
             ),
           ),
-          SizedBox(
-            height: _currentTab == 0 ? 320 : 460,
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            height: _currentTab == 0 ? 320.0 : 480.0,
             child: TabBarView(
               controller: _tabController,
               children: [

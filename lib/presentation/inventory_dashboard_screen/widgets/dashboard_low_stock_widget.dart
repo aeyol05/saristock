@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_theme.dart';
-import '../../../widgets/status_badge_widget.dart';
 
 class DashboardLowStockWidget extends StatelessWidget {
   final bool compact;
   final List<Map<String, dynamic>> products;
+  final Function(Map<String, dynamic>)? onProductTap;
 
   const DashboardLowStockWidget({
     super.key,
     this.compact = false,
     this.products = const [],
+    this.onProductTap,
   });
 
   @override
@@ -40,7 +41,6 @@ class DashboardLowStockWidget extends StatelessWidget {
     );
   }
 
-
   Widget _buildLowStockItem(
     Map<String, dynamic> item,
     bool isOutOfStock,
@@ -48,7 +48,7 @@ class DashboardLowStockWidget extends StatelessWidget {
   ) {
     final statusColor = isOutOfStock ? AppTheme.cardRose.colors.first : AppTheme.cardAmber.colors.first;
     final stock = item['stock'] ?? item['currentStock'] ?? 0;
-    
+
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: Duration(milliseconds: 300 + index * 60),
@@ -67,22 +67,15 @@ class DashboardLowStockWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: statusColor.withAlpha(20),
-            width: 1,
-          ),
+          border: Border.all(color: statusColor.withAlpha(20), width: 1),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(5),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
+            BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 10, offset: const Offset(0, 4)),
           ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () {},
+            onTap: onProductTap != null ? () => onProductTap!(item) : null,
             borderRadius: BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -120,7 +113,7 @@ class DashboardLowStockWidget extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${item['category'] ?? 'General'} • Restock Level: ${item['reorderLevel'] ?? 5}',
+                          '${item['category'] ?? 'General'}',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -157,7 +150,9 @@ class DashboardLowStockWidget extends StatelessWidget {
                   const SizedBox(width: 8),
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: AppTheme.onSurfaceVariant.withAlpha(100),
+                    color: onProductTap != null
+                        ? AppTheme.primary.withAlpha(150)
+                        : AppTheme.onSurfaceVariant.withAlpha(100),
                     size: 18,
                   ),
                 ],

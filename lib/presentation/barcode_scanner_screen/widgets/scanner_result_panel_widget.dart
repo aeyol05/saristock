@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/status_badge_widget.dart';
+import '../../inventory_dashboard_screen/widgets/add_product_bottom_sheet_widget.dart';
 
 class ScannerResultPanelWidget extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -216,7 +217,7 @@ class _ScannerResultPanelWidgetState extends State<ScannerResultPanelWidget> {
                       ),
                       const SizedBox(width: 8),
                       _MetaChip(
-                        icon: Icons.help_outline,
+                        icon: Icons.payments_outlined,
                         label:
                             '₱${(widget.product['price'] as double).toStringAsFixed(2)}',
                       ),
@@ -442,7 +443,18 @@ class _ScannerResultPanelWidgetState extends State<ScannerResultPanelWidget> {
                   SizedBox(
                     height: 50,
                     child: FilledButton.icon(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final barcode = widget.product['barcode'] as String?;
+                        final result = await showModalBottomSheet<bool>(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => AddProductBottomSheetWidget(
+                            initialBarcode: barcode,
+                          ),
+                        );
+                        if (result == true) widget.onClose();
+                      },
                       icon: const Icon(Icons.add_box_outlined),
                       label: Text(
                         'Irehistro ang Bagong Produkto',

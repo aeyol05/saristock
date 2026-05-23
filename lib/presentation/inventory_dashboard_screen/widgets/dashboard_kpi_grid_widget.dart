@@ -6,12 +6,16 @@ class DashboardKpiGridWidget extends StatefulWidget {
   final bool tabletMode;
   final int totalProducts;
   final int lowStockCount;
+  final int outOfStockCount;
+  final double totalStockValue;
 
   const DashboardKpiGridWidget({
     super.key,
     this.tabletMode = false,
     this.totalProducts = 0,
     this.lowStockCount = 0,
+    this.outOfStockCount = 0,
+    this.totalStockValue = 0.0,
   });
 
   @override
@@ -39,21 +43,21 @@ class _DashboardKpiGridWidgetState extends State<DashboardKpiGridWidget>
       'suffix': ' produkto',
       'icon': Icons.warning_amber_rounded,
       'gradient': AppTheme.cardAmber,
-      'change': 'Stock ay sapat',
-      'changePositive': false,
+      'change': widget.lowStockCount == 0 ? 'Stock ay sapat' : 'Kailangan ng restock',
+      'changePositive': widget.lowStockCount == 0,
     },
     {
       'label': 'Wala na',
-      'value': 0,
+      'value': widget.outOfStockCount,
       'suffix': ' produkto',
       'icon': Icons.remove_shopping_cart_outlined,
       'gradient': AppTheme.cardRose,
-      'change': 'Walang out of stock',
-      'changePositive': false,
+      'change': widget.outOfStockCount == 0 ? 'Walang out of stock' : 'Kailangan ng dagdag',
+      'changePositive': widget.outOfStockCount == 0,
     },
     {
       'label': 'Halaga ng Stock',
-      'value': 0,
+      'value': widget.totalStockValue.round(),
       'suffix': '',
       'prefix': '₱',
       'icon': Icons.account_balance_wallet_outlined,
@@ -67,7 +71,7 @@ class _DashboardKpiGridWidgetState extends State<DashboardKpiGridWidget>
   void initState() {
     super.initState();
     _controllers = List.generate(
-      _kpiData.length,
+      4,
       (i) => AnimationController(
         vsync: this,
         duration: Duration(milliseconds: 600 + i * 100),
@@ -75,10 +79,9 @@ class _DashboardKpiGridWidgetState extends State<DashboardKpiGridWidget>
     );
     _animations = _controllers
         .map(
-          (c) => Tween<double>(
-            begin: 0,
-            end: 1,
-          ).animate(CurvedAnimation(parent: c, curve: Curves.easeOutCubic)),
+          (c) => Tween<double>(begin: 0, end: 1).animate(
+            CurvedAnimation(parent: c, curve: Curves.easeOutCubic),
+          ),
         )
         .toList();
 
@@ -86,6 +89,20 @@ class _DashboardKpiGridWidgetState extends State<DashboardKpiGridWidget>
       Future.delayed(Duration(milliseconds: i * 80), () {
         if (mounted) _controllers[i].forward();
       });
+    }
+  }
+
+  @override
+  void didUpdateWidget(DashboardKpiGridWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-animate when data changes
+    if (oldWidget.totalProducts != widget.totalProducts ||
+        oldWidget.outOfStockCount != widget.outOfStockCount ||
+        oldWidget.totalStockValue != widget.totalStockValue) {
+      for (final c in _controllers) {
+        c.reset();
+        c.forward();
+      }
     }
   }
 
@@ -152,7 +169,6 @@ class _KpiCard extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Background Decorative Circle
           Positioned(
             right: -20,
             bottom: -20,
@@ -188,8 +204,10 @@ class _KpiCard extends StatelessWidget {
                   Container(
                     width: 6,
                     height: 6,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF4CAF50),
+                    decoration: BoxDecoration(
+                      color: (kpi['changePositive'] as bool)
+                          ? const Color(0xFF4CAF50)
+                          : const Color(0xFFFF5252),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -248,9 +266,8 @@ class _KpiCard extends StatelessWidget {
   }
 
   String _formatLarge(int value) {
-    if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)}K';
-    }
+    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
+    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}K';
     return value.toString();
   }
 }
